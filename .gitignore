@@ -3,7 +3,7 @@ node_modules/
 target/
 
 # Build
-dist/
+# dist/  # 取消注释以忽略前端构建产物
 *.jar
 *.zip
 *.tar.gz
