@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+target/
+
+# Build
+dist/
+*.jar
+*.zip
+*.tar.gz
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+app.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup
+backup/
+*.bak

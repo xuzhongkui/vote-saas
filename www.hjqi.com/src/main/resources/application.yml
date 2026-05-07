@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: vote
+  datasource:
+    url: jdbc:mysql://156.225.26.72:3306/vote_saas?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  web:
+    resources:
+      static-locations: classpath:/static/,file:./upload/
+      static-path-pattern: /static/**
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 3992892381@qq.com  # 请替换为您的QQ邮箱地址
+    password: jnpmqxuzilcuceaj  # 请替换为您的QQ邮箱授权码
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          from: 3992892381@qq.com  # 发件人邮箱地址（必须与username相同）
+    # ==================== QQ邮箱SMTP配置说明 ====================
+    # 
+    # 【重要】配置步骤：
+    # 1. 登录QQ邮箱 (https://mail.qq.com)
+    # 2. 点击"设置" -> "账户"
+    # 3. 找到"POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务"
+    # 4. 开启"POP3/SMTP服务"或"IMAP/SMTP服务"
+    # 5. 点击"生成授权码"，会收到一个16位的授权码（例如：abcdefghijklmnop）
+    # 6. 将授权码填入上面的 password 字段（不是QQ密码！）
+    # 
+    # 配置方式（推荐使用环境变量，更安全）：
+    # - 方式1：直接在 application.yml 中修改 username 和 password
+    # - 方式2：使用环境变量 MAIL_USERNAME 和 MAIL_PASSWORD
+    #   例如：export MAIL_USERNAME=your-email@qq.com
+    #         export MAIL_PASSWORD=your-authorization-code
+    # - 方式3：使用启动参数
+    #   java -DMAIL_USERNAME=your-email@qq.com -DMAIL_PASSWORD=your-code -jar app.jar
+    #
+    # 其他邮箱配置示例：
+    # - 163邮箱: 
+    #   host: smtp.163.com
+    #   port: 465 (SSL) 或 25
+    #   需要在163邮箱中开启SMTP服务并获取授权码
+    # - Gmail: 
+    #   host: smtp.gmail.com
+    #   port: 587 (TLS) 或 465 (SSL)
+    #   需要开启"允许不够安全的应用访问"
+    # - 企业邮箱: 请联系邮箱管理员获取SMTP配置
+    #
+    # 测试邮件发送：
+    # 配置完成后，重启应用，使用"忘记密码"功能测试邮件发送是否正常
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+server:
+  port: 8080
+
+# JWT配置
+jwt:
+  secret: voteSystemSecretKey2024ForJWTTokenGeneration
+  expiration: 86400000 # 24小时（毫秒）
+
+# 跨域配置
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:3000
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+
+
+# 文件上传配置
+file:
+  upload:
+    path: upload
+
+# 应用基础配置
+app:
+  base-url: http://localhost:3000  # 用于生成二维码和链接的基础URL（前端地址）

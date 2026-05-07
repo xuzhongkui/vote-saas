@@ -1,0 +1,190 @@
+﻿<template>
+  <div class="checkout-page" v-loading="pageLoading" element-loading-text="鍔犺浇涓?..">
+    <el-card>
+      <template #header>
+        <h3>缁撶畻椤?/h3>
+      </template>
+
+      <el-row :gutter="20" v-if="!pageLoading">
+        <!-- 宸︿晶锛氳鍗曚俊鎭?-->
+        <el-col :span="16">
+          <!-- 鏀惰揣鍦板潃 -->
+          <el-card class="section-card" style="margin-bottom: 20px">
+            <template #header>
+              <div class="section-header">
+                <h4>鏀惰揣鍦板潃</h4>
+                <el-button type="primary" link @click="showAddressDialog = true">
+                  <el-icon><Plus /></el-icon>
+                  鏂板鍦板潃
+                </el-button>
+              </div>
+            </template>
+
+            <el-radio-group v-model="selectedAddressId" @change="handleAddressChange">
+              <el-radio
+                v-for="address in addresses"
+                :key="address.id"
+                :label="address.id"
+                class="address-radio"
+              >
+                <div class="address-info">
+                  <div class="address-header">
+                    <span class="receiver-name">{{ address.receiverName }}</span>
+                    <span class="receiver-phone">{{ address.receiverPhone }}</span>
+                    <el-tag v-if="address.isDefault" type="success" size="small">榛樿</el-tag>
+                  </div>
+                  <div class="address-detail">
+                    {{ address.fullAddress || `${address.province}${address.city}${address.district}${address.detailAddress}` }}
+                  </div>
+                </div>
+              </el-radio>
+            </el-radio-group>
+
+            <el-empty v-if="addresses.length === 0" description="鏆傛棤鏀惰揣鍦板潃锛岃鍏堟坊鍔?>
+              <el-button type="primary" @click="showAddressDialog = true">娣诲姞鍦板潃</el-button>
+            </el-empty>
+          </el-card>
+
+          <!-- 閰嶉€佹柟寮?-->
+          <el-card class="section-card" style="margin-bottom: 20px">
+            <template #header>
+              <h4>閰嶉€佹柟寮?/h4>
+            </template>
+
+            <el-radio-group v-model="form.deliveryType" @change="handleDeliveryTypeChange">
+              <el-radio :label="1" class="delivery-radio">
+                <div class="delivery-info">
+                  <div class="delivery-name">鑷彁</div>
+                  <div class="delivery-desc">鍒板簵鑷彁锛屾棤闇€閰嶉€?/div>
+                </div>
+              </el-radio>
+              <el-radio :label="2" class="delivery-radio">
+                <div class="delivery-info">
+                  <div class="delivery-name">鍚屽煄閰嶉€?/div>
+                  <div class="delivery-desc">鍟嗗鎻愪緵鍚屽煄閰嶉€佹湇鍔?/div>
+                </div>
+              </el-radio>
+            </el-radio-group>
+          </el-card>
+
+          <!-- 鎻愯揣鏃ユ湡 -->
+          <el-card class="section-card" style="margin-bottom: 20px">
+            <template #header>
+              <h4>鎻愯揣鏃ユ湡</h4>
+            </template>
+
+            <el-date-picker
+              v-model="form.expectedDate"
+              type="date"
+              placeholder="閫夋嫨鎻愯揣鏃ユ湡"
+              :disabled-date="disabledDate"
+              style="width: 100%"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+            />
+          </el-card>
+
+          <!-- 澶囨敞 -->
+          <el-card class="section-card">
+            <template #header>
+              <h4>澶囨敞</h4>
+            </template>
+
+            <el-input
+              v-model="form.userRemark"
+              type="textarea"
+              :rows="4"
+              placeholder="璇疯緭鍏ュ娉ㄤ俊鎭紙閫夊～锛?
+              maxlength="200"
+              show-word-limit
+            />
+          </el-card>
+        </el-col>
+
+        <!-- 鍙充晶锛氳鍗曟眹鎬?-->
+        <el-col :span="8">
+          <el-card class="order-summary">
+            <template #header>
+              <h4>璁㈠崟姹囨€?/h4>
+            </template>
+
+            <div class="order-items">
+              <div
+                v-for="item in orderItems"
+                :key="item.id"
+                class="order-item"
+              >
+                <img :src="item.productImage || '/placeholder.png'" class="item-image" />
+                <div class="item-info">
+                  <div class="item-name">{{ item.productNameZh || item.productNameEn || '鍟嗗搧' }}</div>
+                  <div class="item-spec" v-if="item.skuName">{{ item.skuName }}</div>
+                  <div class="item-quantity">x{{ item.quantity }}</div>
+                </div>
+                <div class="item-price">楼{{ formatMoney(item.price * item.quantity) }}</div>
+              </div>
+            </div>
+
+            <el-divider />
+
+            <div class="summary-row">
+              <span>鍟嗗搧鎬讳环</span>
+              <span>楼{{ formatMoney(productAmount) }}</span>
+            </div>
+            <div class="summary-row">
+              <span>閰嶉€佽垂</span>
+              <span v-if="form.deliveryType === 1" class="free-shipping">鍏嶈繍璐癸紙鑷彁锛?/span>
+              <span v-else-if="isFreeShipping" class="free-shipping">鍏嶈繍璐癸紙宸叉弧瓒冲寘閭級</span>
+              <span v-else>楼{{ formatMoney(deliveryFee) }}</span>
+            </div>
+            <div class="shipping-tip" v-if="form.deliveryType === 2 && amountToFreeShipping > 0 && freeShippingAmount">
+              <el-icon><InfoFilled /></el-icon>
+              <span>鍐嶈喘 楼{{ formatMoney(amountToFreeShipping) }} 鍗冲彲鍖呴偖</span>
+            </div>
+            <div class="summary-row" v-if="discountAmount > 0">
+              <span>浼樻儬閲戦</span>
+              <span class="discount">-楼{{ formatMoney(discountAmount) }}</span>
+            </div>
+            <el-divider />
+            <div class="summary-row total">
+              <span>鍚堣</span>
+              <span class="total-amount">楼{{ formatMoney(totalAmount) }}</span>
+            </div>
+
+            <el-button
+              type="primary"
+              size="large"
+              :loading="submitting"
+              :disabled="!canSubmit"
+              @click="handleSubmit"
+              style="width: 100%; margin-top: 20px"
+            >
+              鎻愪氦璁㈠崟
+            </el-button>
+
+            <div class="submit-tips">
+              <el-icon><InfoFilled /></el-icon>
+              <span>鎻愪氦璁㈠崟鍚庯紝灏嗚烦杞埌鍟嗗鏀粯璇存槑椤?/span>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-card>
+
+    <!-- 鍦板潃绠＄悊瀵硅瘽妗?-->
+    <el-dialog
+      v-model="showAddressDialog"
+      title="绠＄悊鏀惰揣鍦板潃"
+      width="800px"
+      @close="loadAddresses"
+    >
+      <Addresses @close="showAddressDialog = false" />
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { useCartStore } from '@/stores/cart'
+import { ElMessage } from 'element-plus'

@@ -1,0 +1,62 @@
+# 生产环境配置 - 服务器地址: 156.225.26.72
+spring:
+  application:
+    name: vote
+  datasource:
+    url: jdbc:mysql://156.225.26.72:3306/vote_saas?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${DB_PASSWORD:123456}  # 建议使用环境变量
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  web:
+    resources:
+      static-locations: classpath:/static/,file:./upload/
+      static-path-pattern: /static/**
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: ${MAIL_USERNAME:3992892381@qq.com}
+    password: ${MAIL_PASSWORD:jnpmqxuzilcuceaj}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          from: ${MAIL_USERNAME:3992892381@qq.com}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    # 生产环境关闭SQL日志
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+server:
+  port: 8080
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:voteSystemSecretKey2024ForJWTTokenGeneration}
+  expiration: 86400000
+
+# 跨域配置 - 生产环境
+cors:
+  allowed-origins: http://156.225.26.72
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+
+# 文件上传配置 - 使用相对路径，文件会保存在 jar 包同级的 upload 目录
+file:
+  upload:
+    path: upload
+
+# 应用基础配置 - 生产环境
+app:
+  base-url: http://156.225.26.72
